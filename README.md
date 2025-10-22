@@ -75,7 +75,8 @@ Traditional marketplaces force sellers to choose between fixed prices or auction
 |------------|---------|
 | **Node.js** | Runtime environment |
 | **Express.js** | Web framework |
-| **PostgreSQL** | Primary database |
+| **MongoDB** | Primary database |
+| **Mongoose** | ODM for MongoDB |
 | **Redis** | Caching & session storage |
 | **Socket.io** | Real-time communication |
 | **Bull** | Job queue for background tasks |
@@ -98,7 +99,6 @@ Traditional marketplaces force sellers to choose between fixed prices or auction
 | **AWS S3** | File storage |
 | **Stripe** | Payment processing |
 | **SendGrid** | Email services |
-| **Elasticsearch** | Search engine |
 
 ---
 
@@ -108,7 +108,7 @@ Traditional marketplaces force sellers to choose between fixed prices or auction
 
 Ensure you have the following installed:
 - Node.js (v18.0.0 or higher)
-- PostgreSQL (v14 or higher)
+- MongoDB (v6.0 or higher) or MongoDB Atlas account
 - Redis (v6 or higher)
 - Docker & Docker Compose (optional, recommended)
 
@@ -124,9 +124,6 @@ cp .env.example .env
 
 # Start all services
 docker-compose up -d
-
-# Run database migrations
-docker-compose exec api npm run migrate
 
 # Seed sample data (optional)
 docker-compose exec api npm run seed
@@ -152,11 +149,7 @@ npm install
 # Set up environment variables
 cd ..
 cp .env.example .env
-# Edit .env with your configuration
-
-# Run database migrations
-cd server
-npm run migrate
+# Edit .env with your configuration (add MongoDB URI)
 
 # Start development servers
 # Terminal 1 - Backend
@@ -174,12 +167,14 @@ Create a `.env` file in the root directory:
 
 ```env
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/marketplace
+MONGODB_URI=mongodb://localhost:27017/marketplace
 REDIS_URL=redis://localhost:6379
 
 # Authentication
 JWT_SECRET=your-super-secret-key
-JWT_EXPIRES_IN=7d
+JWT_REFRESH_SECRET=your-refresh-secret-key
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
 
 # OAuth Providers
 GOOGLE_CLIENT_ID=your-google-client-id
@@ -225,15 +220,15 @@ CLIENT_URL=http://localhost:3000
         │                   │
         ▼                   ▼
 ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
-│  PostgreSQL   │   │    Redis      │   │ Elasticsearch │
-│  (Primary DB) │   │   (Cache)     │   │   (Search)    │
+│   MongoDB     │   │    Redis      │   │  Background   │
+│  (Primary DB) │   │   (Cache)     │   │  Jobs (Bull)  │
 └───────────────┘   └───────────────┘   └───────────────┘
         │
         ▼
-┌───────────────┐   ┌───────────────┐
-│  Background   │   │   Storage     │
-│  Jobs (Bull)  │   │   (AWS S3)    │
-└───────────────┘   └───────────────┘
+┌───────────────┐
+│   Storage     │
+│   (AWS S3)    │
+└───────────────┘
 ```
 
 ### Directory Structure
@@ -258,13 +253,12 @@ marketplace-with-auction/
 │   │   ├── config/         # Configuration files
 │   │   ├── controllers/    # Route controllers
 │   │   ├── middleware/     # Express middleware
-│   │   ├── models/         # Database models
+│   │   ├── models/         # Mongoose schemas and models
 │   │   ├── routes/         # API routes
 │   │   ├── services/       # Business logic
 │   │   ├── jobs/           # Background job processors
 │   │   ├── utils/          # Utility functions
 │   │   └── websocket/      # WebSocket handlers
-│   ├── migrations/         # Database migrations
 │   ├── seeds/              # Database seeders
 │   └── package.json
 │
@@ -370,6 +364,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- [MongoDB](https://mongodb.com) for the database
+- [Mongoose](https://mongoosejs.com) for elegant MongoDB object modeling
 - [Stripe](https://stripe.com) for payment processing
 - [Socket.io](https://socket.io) for real-time features
 - [TailwindCSS](https://tailwindcss.com) for styling

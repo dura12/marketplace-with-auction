@@ -1,0 +1,693 @@
+---
+name: guidelines
+description: Comprehensive development guidelines for the Marketplace with Auction platform
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json"]
+---
+
+# Marketplace with Auction - Development Guidelines
+
+## Project Overview
+
+This is a full-stack e-commerce platform combining traditional marketplace functionality with auction-based selling. The system handles real-time bidding, payment processing, user authentication, and complex state management across distributed services.
+
+### Architecture Summary
+
+- Backend: Node.js with Express.js, following a layered architecture (Controllers -> Services -> Repositories)
+- Frontend: React 18 with TypeScript, Redux Toolkit for state management
+- Database: MongoDB with Mongoose ODM, Redis for caching and session management
+- Real-time: Socket.io for WebSocket connections (auction updates, notifications)
+- Search: MongoDB Atlas Search or Elasticsearch for product and auction search functionality
+- Queue: Bull for background job processing (email, notifications, auction closure)
+
+---
+
+## Code Style and Conventions
+
+### General Principles
+
+1. Write self-documenting code. Variable and function names should clearly indicate purpose.
+2. Prefer explicit over implicit. Avoid magic numbers and unexplained constants.
+3. Keep functions focused. A function should do one thing and do it well.
+4. Limit function length to 50 lines maximum. If longer, refactor into smaller units.
+5. Maximum file length is 400 lines. Split into modules when approaching this limit.
+
+### Naming Conventions
+
+```
+Files:
+- Components: PascalCase (ProductCard.tsx, AuctionTimer.tsx)
+- Utilities/Services: camelCase (auctionService.ts, priceFormatter.ts)
+- Constants: SCREAMING_SNAKE_CASE in camelCase files (constants/auctionConfig.ts)
+- Mongoose Models: PascalCase singular (Auction.ts, User.ts, Bid.ts)
+
+Variables and Functions:
+- Variables: camelCase (currentBid, auctionEndTime)
+- Functions: camelCase, verb-first (calculateWinningBid, fetchActiveAuctions)
+- Boolean variables: prefix with is/has/should (isAuctionActive, hasReservePrice)
+- Constants: SCREAMING_SNAKE_CASE (MAX_BID_INCREMENT, AUCTION_EXTENSION_MINUTES)
+
+Classes and Types:
+- Classes: PascalCase (AuctionService, BidProcessor)
+- Interfaces: PascalCase, prefix with I only for disambiguation (User, IAuctionRepository)
+- Type aliases: PascalCase (BidStatus, PaymentMethod)
+- Enums: PascalCase with PascalCase members (AuctionStatus.Active)
+```
+
+### TypeScript Requirements
+
+1. Strict mode is mandatory. No `any` types except in exceptional circumstances with documentation.
+2. Define explicit return types for all public functions and methods.
+3. Use interfaces for object shapes that will be extended. Use types for unions, intersections, and primitives.
+4. Prefer `unknown` over `any` when type is genuinely unknown. Narrow with type guards.
+5. Use readonly modifiers for properties that should not be mutated.
+
+```typescript
+// Correct: Mongoose document interface
+interface IAuction extends Document {
+  readonly _id: Types.ObjectId;
+  seller: Types.ObjectId;
+  title: string;
+  currentBid: number;
+  status: AuctionStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+function calculateMinimumBid(currentBid: number, increment: number): number {
+  return currentBid + increment;
+}
+
+// Incorrect
+function calculateMinimumBid(currentBid, increment) {
+  return currentBid + increment;
+}
+```
+
+---
+
+## Backend Development
+
+### API Design
+
+1. Follow RESTful conventions strictly:
+   - GET for retrieval (idempotent)
+   - POST for creation
+   - PUT for full updates
+   - PATCH for partial updates
+   - DELETE for removal
+
+2. URL structure:
+   - Use plural nouns for resources (/auctions, /products, /users)
+   - Nest related resources logically (/auctions/:id/bids)
+   - Use query parameters for filtering, sorting, pagination
+
+3. Response format standardization:
+```typescript
+// Success response
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 150
+  }
+}
+
+// Error response
+{
+  "success": false,
+  "error": {
+    "code": "AUCTION_CLOSED",
+    "message": "Cannot place bid on closed auction",
+    "details": { ... }
+  }
+}
+```
+
+4. HTTP status codes:
+   - 200: Success
+   - 201: Created
+   - 204: No Content (successful DELETE)
+   - 400: Bad Request (validation errors)
+   - 401: Unauthorized
+   - 403: Forbidden
+   - 404: Not Found
+   - 409: Conflict (duplicate bid, auction already ended)
+   - 422: Unprocessable Entity (business logic errors)
+   - 500: Internal Server Error
+
+### Service Layer
+
+1. Business logic belongs in services, not controllers or models.
+2. Services should be stateless and injectable.
+3. Each service handles a single domain (AuctionService, BidService, PaymentService).
+4. Cross-domain operations use service composition, not inheritance.
+
+```typescript
+// Correct: Service composition
+class AuctionClosureService {
+  constructor(
+    private auctionService: AuctionService,
+    private bidService: BidService,
+    private notificationService: NotificationService,
+    private paymentService: PaymentService
+  ) {}
+
+  async closeAuction(auctionId: string): Promise<AuctionResult> {
+    const auction = await this.auctionService.getById(auctionId);
+    const winningBid = await this.bidService.getWinningBid(auctionId);
+    
+    if (winningBid && winningBid.amount >= auction.reservePrice) {
+      await this.paymentService.initiatePayment(winningBid);
+      await this.notificationService.notifyWinner(winningBid.bidderId);
+    }
+    
+    return this.auctionService.markClosed(auctionId);
+  }
+}
+```
+
+### Error Handling
+
+1. Use custom error classes for domain-specific errors:
+```typescript
+class AuctionError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode: number = 400
+  ) {
+    super(message);
+    this.name = 'AuctionError';
+  }
+}
+
+class BidTooLowError extends AuctionError {
+  constructor(currentBid: number, attemptedBid: number) {
+    super(
+      `Bid of ${attemptedBid} is below minimum of ${currentBid}`,
+      'BID_TOO_LOW',
+      422
+    );
+  }
+}
+```
+
+2. Never expose internal errors to clients. Log full details, return sanitized messages.
+3. Use centralized error handling middleware.
+4. Always include correlation IDs in error logs for tracing.
+
+### Database Interactions
+
+1. Use Mongoose models for all database operations. Never use raw MongoDB driver unless absolutely necessary.
+2. Use MongoDB transactions for multi-document operations that require atomicity.
+3. Use findOneAndUpdate with optimistic locking for auction bids to prevent race conditions.
+4. Define indexes in schema definitions for frequently queried fields (status, endTime, seller, category).
+5. Use lean() for read-only queries to improve performance.
+6. Always handle ObjectId validation before queries.
+
+```typescript
+// Correct: Atomic update with optimistic locking using Mongoose
+async placeBid(auctionId: string, bidderId: string, amount: number): Promise<IBid> {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
+  try {
+    const auction = await Auction.findOneAndUpdate(
+      {
+        _id: auctionId,
+        status: 'active',
+        currentBid: { $lt: amount }
+      },
+      {
+        $set: {
+          currentBid: amount,
+          currentBidder: bidderId
+        },
+        $inc: { __v: 1 }
+      },
+      { new: true, session }
+    );
+    
+    if (!auction) {
+      const existingAuction = await Auction.findById(auctionId).session(session);
+      if (!existingAuction || existingAuction.status !== 'active') {
+        throw new AuctionClosedError(auctionId);
+      }
+      throw new BidTooLowError(existingAuction.currentBid, amount);
+    }
+    
+    const bid = await Bid.create([{
+      auction: auctionId,
+      bidder: bidderId,
+      amount
+    }], { session });
+    
+    await session.commitTransaction();
+    return bid[0];
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+}
+```
+
+---
+
+## Frontend Development
+
+### Component Architecture
+
+1. Follow the container/presentational pattern:
+   - Container components: Handle data fetching, state management, business logic
+   - Presentational components: Pure UI rendering, receive all data via props
+
+2. Component file structure:
+```
+components/
+  AuctionCard/
+    index.ts              # Public exports
+    AuctionCard.tsx       # Main component
+    AuctionCard.test.tsx  # Tests
+    AuctionCard.styles.ts # Styled components or CSS module
+    types.ts              # Component-specific types
+```
+
+3. Prefer composition over prop drilling. Use Context for deeply nested state.
+4. Memoize expensive computations with useMemo. Memoize callbacks with useCallback when passed to child components.
+
+### State Management
+
+1. Use Redux Toolkit for global application state (user session, cart, notifications).
+2. Use React Query for server state (products, auctions, orders).
+3. Use local state (useState) for UI-only state (form inputs, modals, dropdowns).
+
+```typescript
+// Redux slice for auction state
+const auctionSlice = createSlice({
+  name: 'auction',
+  initialState: {
+    watchedAuctions: [] as string[],
+    activeBids: {} as Record<string, number>,
+  },
+  reducers: {
+    addToWatchlist: (state, action: PayloadAction<string>) => {
+      if (!state.watchedAuctions.includes(action.payload)) {
+        state.watchedAuctions.push(action.payload);
+      }
+    },
+    updateActiveBid: (state, action: PayloadAction<{ auctionId: string; amount: number }>) => {
+      state.activeBids[action.payload.auctionId] = action.payload.amount;
+    },
+  },
+});
+```
+
+### Real-time Updates
+
+1. WebSocket connections are managed through a dedicated service.
+2. Auction bid updates must be optimistically rendered, then confirmed/reverted.
+3. Implement reconnection logic with exponential backoff.
+4. Debounce rapid UI updates to prevent render thrashing.
+
+```typescript
+// WebSocket event handling for auctions
+useEffect(() => {
+  const socket = socketService.connect();
+  
+  socket.on('bid:new', (data: BidUpdate) => {
+    if (data.auctionId === auctionId) {
+      setCurrentBid(data.amount);
+      setBidHistory(prev => [data, ...prev]);
+    }
+  });
+  
+  socket.on('auction:extended', (data: AuctionExtension) => {
+    if (data.auctionId === auctionId) {
+      setEndTime(new Date(data.newEndTime));
+    }
+  });
+  
+  return () => {
+    socket.off('bid:new');
+    socket.off('auction:extended');
+    socket.disconnect();
+  };
+}, [auctionId]);
+```
+
+### Form Handling
+
+1. Use react-hook-form for all forms.
+2. Validate on blur for individual fields, validate all on submit.
+3. Display inline error messages immediately below the relevant field.
+4. Disable submit button during submission. Show loading state.
+
+---
+
+## Database Schema Conventions
+
+### Collection Naming
+
+- Use camelCase for collection names (MongoDB default pluralizes model names)
+- Model names are singular PascalCase (User, Auction, Bid)
+- Collections become plural lowercase (users, auctions, bids)
+
+### Schema Structure
+
+Every schema must include timestamps and version key:
+```typescript
+const auctionSchema = new Schema({
+  // ... fields
+}, {
+  timestamps: true,        // Adds createdAt and updatedAt
+  versionKey: '__v',       // Enables optimistic locking
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+```
+
+### Field Naming
+
+- Use camelCase for all field names (currentBid, endTime, sellerId)
+- Reference fields should be named as singular noun (seller, auction, bidder)
+- Boolean fields prefix with is/has/should (isActive, hasReservePrice)
+
+### References and Population
+
+1. Use ObjectId references for related documents:
+```typescript
+const bidSchema = new Schema({
+  auction: { type: Schema.Types.ObjectId, ref: 'Auction', required: true, index: true },
+  bidder: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  amount: { type: Number, required: true }
+});
+```
+
+2. Use populate() sparingly. Prefer denormalization for frequently accessed data.
+3. Consider embedding documents for one-to-few relationships (product images, addresses).
+4. Use references for one-to-many or many-to-many relationships (bids, reviews).
+
+### Indexes
+
+1. Define indexes in schema for query optimization:
+```typescript
+// Single field index
+auctionSchema.index({ status: 1 });
+
+// Compound index for common queries
+auctionSchema.index({ status: 1, endTime: 1 });
+
+// Partial index for active auctions
+auctionSchema.index(
+  { endTime: 1 },
+  { partialFilterExpression: { status: 'active' } }
+);
+
+// Text index for search
+productSchema.index({ title: 'text', description: 'text' });
+
+// TTL index for expiring documents
+sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+```
+
+2. Use explain() to verify query performance and index usage.
+3. Avoid over-indexing. Each index increases write overhead.
+
+### Virtuals and Methods
+
+1. Use virtuals for computed properties:
+```typescript
+auctionSchema.virtual('isExpired').get(function() {
+  return this.endTime < new Date();
+});
+
+auctionSchema.virtual('bids', {
+  ref: 'Bid',
+  localField: '_id',
+  foreignField: 'auction'
+});
+```
+
+2. Use instance methods for document-level operations:
+```typescript
+auctionSchema.methods.canAcceptBid = function(amount: number): boolean {
+  return this.status === 'active' && amount > this.currentBid;
+};
+```
+
+3. Use static methods for collection-level operations:
+```typescript
+auctionSchema.statics.findActive = function() {
+  return this.find({ status: 'active', endTime: { $gt: new Date() } });
+};
+```
+
+### Middleware (Hooks)
+
+1. Use pre-save hooks for validation and data transformation:
+```typescript
+auctionSchema.pre('save', function(next) {
+  if (this.isModified('currentBid')) {
+    this.bidCount = (this.bidCount || 0) + 1;
+  }
+  next();
+});
+```
+
+2. Use post hooks for side effects (notifications, cache invalidation):
+```typescript
+bidSchema.post('save', async function(doc) {
+  await notificationService.notifyOutbidUsers(doc.auction, doc.bidder);
+});
+```
+
+---
+
+## Testing Requirements
+
+### Coverage Expectations
+
+- Unit tests: Minimum 80% coverage for services and utilities
+- Integration tests: All API endpoints must have test coverage
+- E2E tests: Critical user flows (registration, bidding, checkout)
+
+### Test Structure
+
+```typescript
+describe('AuctionService', () => {
+  describe('placeBid', () => {
+    it('should accept a valid bid above current price', async () => {
+      // Arrange
+      const auction = await createTestAuction({ currentBid: 100 });
+      const bidder = await createTestUser();
+      
+      // Act
+      const result = await auctionService.placeBid(auction.id, bidder.id, 150);
+      
+      // Assert
+      expect(result.amount).toBe(150);
+      expect(result.bidderId).toBe(bidder.id);
+    });
+    
+    it('should reject a bid below current price', async () => {
+      // Arrange
+      const auction = await createTestAuction({ currentBid: 100 });
+      const bidder = await createTestUser();
+      
+      // Act & Assert
+      await expect(
+        auctionService.placeBid(auction.id, bidder.id, 50)
+      ).rejects.toThrow(BidTooLowError);
+    });
+    
+    it('should reject a bid on closed auction', async () => {
+      // Arrange
+      const auction = await createTestAuction({ status: 'closed' });
+      const bidder = await createTestUser();
+      
+      // Act & Assert
+      await expect(
+        auctionService.placeBid(auction.id, bidder.id, 150)
+      ).rejects.toThrow(AuctionClosedError);
+    });
+  });
+});
+```
+
+### Mocking Guidelines
+
+1. Mock external services (payment, email, storage) in unit tests.
+2. Use mongodb-memory-server for integration tests to run an in-memory MongoDB instance.
+3. Clear collections between test suites using deleteMany() or dropDatabase().
+4. Use factories for test data creation with mongoose-factory or custom builders.
+
+```typescript
+// Test setup with mongodb-memory-server
+import { MongoMemoryServer } from 'mongodb-memory-server';
+
+let mongoServer: MongoMemoryServer;
+
+beforeAll(async () => {
+  mongoServer = await MongoMemoryServer.create();
+  await mongoose.connect(mongoServer.getUri());
+});
+
+afterAll(async () => {
+  await mongoose.disconnect();
+  await mongoServer.stop();
+});
+
+afterEach(async () => {
+  const collections = mongoose.connection.collections;
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
+});
+```
+
+---
+
+## Security Guidelines
+
+### Authentication and Authorization
+
+1. Use JWT tokens with short expiration (15 minutes) and refresh tokens (7 days).
+2. Store refresh tokens in httpOnly cookies, access tokens in memory only.
+3. Implement rate limiting on authentication endpoints.
+4. Use bcrypt with cost factor 12 for password hashing.
+
+### Input Validation
+
+1. Validate all input at the API boundary using a schema validation library (Zod, Joi).
+2. Sanitize user-generated content before storage and display.
+3. Validate file uploads: check MIME type, file size, and scan for malware.
+
+### Auction-Specific Security
+
+1. Bid amounts must be validated server-side. Never trust client-submitted calculations.
+2. Implement bid velocity limits to prevent automated sniping.
+3. Use server timestamps for all bid times. Never accept client timestamps.
+4. Log all bid attempts with IP addresses for audit trails.
+5. Implement fraud detection for suspicious bidding patterns.
+
+---
+
+## Git Workflow
+
+### Branch Naming
+
+```
+feature/    - New features (feature/auction-reserve-price)
+bugfix/     - Bug fixes (bugfix/bid-race-condition)
+hotfix/     - Production hotfixes (hotfix/payment-timeout)
+refactor/   - Code refactoring (refactor/auction-service)
+chore/      - Maintenance tasks (chore/update-dependencies)
+```
+
+### Commit Messages
+
+Follow Conventional Commits:
+```
+type(scope): description
+
+feat(auction): add reserve price functionality
+fix(bidding): resolve race condition in concurrent bids
+refactor(payment): extract payment validation to service
+docs(api): update auction endpoints documentation
+test(auction): add integration tests for bid placement
+```
+
+### Pull Request Requirements
+
+1. All PRs require at least one approval.
+2. All CI checks must pass (tests, linting, type checking).
+3. PRs should be focused and atomic. One feature or fix per PR.
+4. Include description of changes and testing performed.
+5. Update relevant documentation.
+
+---
+
+## Performance Considerations
+
+### Backend
+
+1. Configure MongoDB connection pooling appropriately (default pool size is 100).
+2. Implement caching for frequently accessed, slowly changing data (categories, user profiles).
+3. Use Redis for session storage and real-time data (current bid prices).
+4. Paginate all list endpoints. Default limit of 20, maximum of 100.
+5. Use MongoDB aggregation pipelines for complex data transformations.
+6. Use lean() for read-only queries to skip Mongoose document hydration.
+7. Select only required fields using projection to reduce bandwidth.
+8. Avoid unbounded array growth in documents. Use separate collections for large arrays.
+
+### Frontend
+
+1. Implement code splitting at the route level.
+2. Lazy load images below the fold.
+3. Use virtualization for long lists (auction history, product listings).
+4. Debounce search inputs (300ms minimum).
+5. Prefetch data for likely navigation targets.
+
+### Real-time
+
+1. Batch WebSocket messages when possible.
+2. Use rooms/channels to limit broadcast scope.
+3. Implement client-side throttling for high-frequency updates.
+4. Consider Server-Sent Events for one-way updates (notifications).
+
+---
+
+## Environment Configuration
+
+### Required Environment Variables
+
+```
+NODE_ENV                 - development | staging | production
+MONGODB_URI              - MongoDB connection string (mongodb://... or mongodb+srv://...)
+REDIS_URL                - Redis connection string
+JWT_SECRET               - Minimum 256-bit secret for token signing
+JWT_REFRESH_SECRET       - Separate secret for refresh tokens
+STRIPE_SECRET_KEY        - Payment processing
+STRIPE_WEBHOOK_SECRET    - Webhook signature verification
+AWS_ACCESS_KEY_ID        - File storage credentials
+AWS_SECRET_ACCESS_KEY    - File storage credentials
+AWS_S3_BUCKET            - Storage bucket name
+SENDGRID_API_KEY         - Email service
+```
+
+### Environment-Specific Behavior
+
+1. Development: Verbose logging, hot reloading, mock payment processing.
+2. Staging: Production-like, uses test payment credentials, synthetic data allowed.
+3. Production: Minimal logging, real payment processing, strict security headers.
+
+---
+
+## Monitoring and Logging
+
+### Log Levels
+
+- ERROR: System failures requiring immediate attention
+- WARN: Unexpected conditions that don't prevent operation
+- INFO: Significant business events (auction created, bid placed, payment completed)
+- DEBUG: Detailed diagnostic information (development only)
+
+### Required Logging
+
+1. All API requests: method, path, status code, response time, user ID
+2. All database queries in development (with duration)
+3. All external service calls (payment, email, storage)
+4. All authentication events (login, logout, token refresh, failures)
+5. All auction events (creation, bid, extension, closure)
+
+### Metrics
+
+1. API response times (p50, p95, p99)
+2. Active WebSocket connections
+3. Bid processing latency
+4. Payment success/failure rates
+5. Search query performance
