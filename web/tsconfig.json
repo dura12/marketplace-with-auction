@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "incremental": true,
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",   // ✅ Added this
+    "paths": {        // ✅ Added alias support
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+, "app/products/page.jsx", "app/page.jsx", "components/footer.jsx", "components/commons/Navbar.jsx", "components/MobileNav.jsx", "app/layout.jsx", "components/sign-in-dialogue.jsx", "components/commons/ChatBot.jsx", "components/sign-up-dialogue.jsx", "app/api/custom-login/route.js"  ],
+  "exclude": ["node_modules"]
+}
