@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+
+    /* Light mode - Purple primary */
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+
+    --accent: 262.1 83.3% 57.8%;
+    --accent-foreground: 210 20% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 355.7 100% 97.3%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262.1 83.3% 57.8%;
+
+    --highlight: 47.9 95.8% 53.1%;
+    --highlight-foreground: 26 83.3% 14.1%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+
+    /* Dark mode - White/lighter purple for better contrast */
+    --primary: 210 20% 98%; /* Changed to white for dark mode */
+    --primary-foreground: 224 71.4% 4.1%;
+
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+
+    --accent: 210 20% 98%; /* Changed to match primary */
+    --accent-foreground: 224 71.4% 4.1%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+
+    --success: 142.1 70.6% 45.3%;
+    --success-foreground: 144.9 80.4% 10%;
+
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 210 20% 98%; /* Changed to match primary */
+
+    --highlight: 47.9 95.8% 53.1%;
+    --highlight-foreground: 26 83.3% 14.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Update gradient background for dark mode */
+.gradient-bg {
+  @apply bg-primary;
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent) / 0.8) 100%);
+}
+
+.dark .gradient-bg {
+  background: linear-gradient(
+    135deg,
+    hsl(262.1 83.3% 57.8%) 0% /* Keep purple in dark mode for gradients */,
+    hsl(262.1 83.3% 47.8%) 100%
+  );
+}
+
+.auction-card-hover {
+  transition: all 0.3s ease;
+}
+
+.auction-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.highlight-badge {
+  background: linear-gradient(135deg, hsl(var(--highlight)) 0%, hsl(var(--highlight) / 0.8) 100%);
+  color: hsl(var(--highlight-foreground));
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pattern-bg {
+  background-color: hsl(var(--background));
+  background-image: radial-gradient(hsl(var(--primary) / 0.05) 2px, transparent 0);
+  background-size: 30px 30px;
+}
+
+/* Dark mode specific adjustments */
+.dark .pattern-bg {
+  background-image: radial-gradient(hsl(var(--primary) / 0.1) 2px, transparent 0);
+}
+
+.dark .auction-card-hover:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+}
+
