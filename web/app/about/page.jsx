@@ -3,7 +3,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   Award,
@@ -19,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 // Fetch function to retrieve About Us content
 async function fetchAboutUsContent() {
@@ -139,9 +139,10 @@ export default function AboutUsPage() {
             </div>
 
             <div className="relative h-64 sm:h-96 rounded-xl overflow-hidden">
-              <Image
-                src={aboutData.hero.image || "/placeholder.svg"}
+              <ImageWithFallback
+                src={aboutData.hero.image}
                 alt="About our company"
+                fallbackText="About Us"
                 fill
                 className="object-cover"
                 priority
@@ -162,9 +163,10 @@ export default function AboutUsPage() {
             {aboutData?.mission && (
               <Card className="overflow-hidden">
                 <div className="relative h-48">
-                  <Image
-                    src={aboutData.mission.image || "/placeholder.svg"}
+                  <ImageWithFallback
+                    src={aboutData.mission.image}
                     alt="Our mission"
+                    fallbackText={aboutData.mission.title || "Our Mission"}
                     fill
                     className="object-cover"
                   />
@@ -186,9 +188,10 @@ export default function AboutUsPage() {
             {aboutData?.vision && (
               <Card className="overflow-hidden">
                 <div className="relative h-48">
-                  <Image
-                    src={aboutData.vision.image || "/placeholder.svg"}
+                  <ImageWithFallback
+                    src={aboutData.vision.image}
                     alt="Our vision"
+                    fallbackText={aboutData.vision.title || "Our Vision"}
                     fill
                     className="object-cover"
                   />
@@ -292,15 +295,13 @@ export default function AboutUsPage() {
                   <div className="md:w-1/2 flex justify-center items-center">
                     <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-purple-600 border-4 border-white dark:border-gray-900 z-10"></div>
                     <div className="hidden md:block w-24 h-24 rounded-full overflow-hidden mx-auto">
-                      <Image
-                        src={event.image || "/placeholder.svg"}
+                      <ImageWithFallback
+                        src={event.image}
                         alt={event.title}
+                        fallbackText={event.title}
                         width={96}
                         height={96}
-                        className="object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder.svg";
-                        }}
+                        className="object-cover rounded-full"
                       />
                     </div>
                   </div>
@@ -331,14 +332,15 @@ export default function AboutUsPage() {
             {aboutData.locations.map((location) => (
               <Card key={`location-${location.id}-${location.city}`} className="overflow-hidden">
                 <div className="relative h-48">
-                  <Image
-                    src={location.image || "/placeholder.svg"}
+                  <ImageWithFallback
+                    src={location.image}
                     alt={location.city}
+                    fallbackText={`${location.city}, ${location.country}`}
                     fill
                     className="object-cover"
                   />
                   {location.isHeadquarters && (
-                    <Badge className="absolute top-2 right-2 bg-purple-600">
+                    <Badge className="absolute top-2 right-2 bg-purple-600 z-10">
                       Headquarters
                     </Badge>
                   )}
