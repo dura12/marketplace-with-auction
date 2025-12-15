@@ -1,7 +1,7 @@
 "use client";
    import { useState, useEffect } from "react";
    import Link from "next/link";
-   import Image from "next/image";
+   import { ImageWithFallback } from "@/components/ui/image-with-fallback";
    import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
    import { Button } from "@/components/ui/button";
    import { cn } from "@/libs/utils";
@@ -40,6 +40,8 @@
 
        // Join auction room and listen for real-time bid updates
        useEffect(() => {
+           if (!socket) return; // Skip if socket is not available
+
            socket.emit("joinAuction", auction._id);
 
            const handleNewBid = (data) => {
@@ -121,13 +123,16 @@
                    description: `You ${data.message.includes("updated") ? "updated your bid to" : "bid"} $${bidAmount} on ${auction.auctionTitle}`,
                });
 
-               socket.emit("newBidIncrement", {
-                   auctionId: auction._id,
-                   bidAmount,
-                   bidderName: session.user.name,
-                   bidderEmail: session.user.email,
-                   bidderId: session.user.id
-               });
+               // Emit socket event if available
+               if (socket) {
+                   socket.emit("newBidIncrement", {
+                       auctionId: auction._id,
+                       bidAmount,
+                       bidderName: session.user.name,
+                       bidderEmail: session.user.email,
+                       bidderId: session.user.id
+                   });
+               }
            } catch (error) {
                toast({
                    title: "Bid failed",
@@ -155,13 +160,13 @@
                <CardHeader className="p-0">
                    <div className="relative">
                        <Link href={`/auctions/${auction._id}`}>
-                           <div className="aspect-[4/3] w-full overflow-hidden">
-                               <Image
-                                   src={auction.itemImg || "/placeholder.svg"}
+                           <div className="relative aspect-[4/3] w-full overflow-hidden">
+                               <ImageWithFallback
+                                   src={auction.itemImg}
                                    alt={auction.auctionTitle}
-                                   width={400}
-                                   height={300}
-                                   className="h-full w-full object-cover transition-transform hover:scale-105"
+                                   fallbackText={auction.auctionTitle}
+                                   fill
+                                   className="object-cover transition-transform hover:scale-105"
                                />
                            </div>
                        </Link>
