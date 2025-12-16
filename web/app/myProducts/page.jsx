@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 
 // Demo data
 const demoProducts = Array.from({ length: 12 }, (_, i) => ({
@@ -177,9 +177,10 @@ export default function MyProductsPage() {
         {filteredProducts.map((product) => (
           <Card key={product.id} className="overflow-hidden">
             <div className="relative aspect-square">
-              <Image
-                src={product.image || "/placeholder.svg"}
+              <ImageWithFallback
+                src={product.image}
                 alt={product.name}
+                fallbackText={product.name}
                 fill
                 className="object-cover"
               />
