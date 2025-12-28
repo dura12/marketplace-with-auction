@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -592,9 +592,10 @@ export function AddEditProductForm({ open, onOpenChange, product, mode }) {
                 <div className="grid grid-cols-3 gap-4 mt-4">
                   {images.map((image, index) => (
                     <div key={index} className="relative aspect-square">
-                      <Image
-                        src={image || "/placeholder.svg"}
+                      <ImageWithFallback
+                        src={image}
                         alt={`Preview ${index + 1}`}
+                        fallbackText="Image Preview"
                         fill
                         className="rounded-lg object-cover"
                       />
