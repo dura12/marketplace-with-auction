@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Button } from "@/components/ui/button";
 import { CreateAuctionDialog } from "./create-auction";
 import { FilterBar } from "../filterBar";
@@ -224,9 +224,10 @@ export default function MerchantAuctions() {
                 >
                   <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div className="flex items-center gap-2 sm:gap-4">
-                      <Image
-                        src={auction.itemImg?.[0] || "/placeholder.svg"}
+                      <ImageWithFallback
+                        src={auction.itemImg?.[0]}
                         alt={auction.productName || "Auction item"}
+                        fallbackText={auction.productName || auction.auctionTitle}
                         width={40}
                         height={40}
                         className="rounded-lg object-cover"
