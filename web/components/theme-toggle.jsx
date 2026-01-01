@@ -1,4 +1,4 @@
-// Theme toggle component using next-themes for switching modes
+// Theme toggle component using next-themes for switching between light, dark, and system modes
 "use client"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
