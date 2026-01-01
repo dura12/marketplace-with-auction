@@ -2,7 +2,7 @@
 
 import { cn } from "@/libs/utils"
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -254,9 +254,10 @@ export default function AuctionDetailPage({ params }) {
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                  {/* Main Image */}
                  <div className="relative aspect-square overflow-hidden rounded-lg border">
-                   <Image
-                     src={auction.itemImg[0] || "/placeholder.svg"}
+                   <ImageWithFallback
+                     src={auction.itemImg?.[0]}
                      alt={auction.auctionTitle}
+                     fallbackText={auction.auctionTitle}
                      fill
                      className="object-cover"
                      priority
@@ -309,11 +310,12 @@ export default function AuctionDetailPage({ params }) {
               {/* Additional Images */}
               {auction.itemImg.length > 1 && (
                 <div className="mt-6 grid grid-cols-4 gap-2">
-                  {auction.itemImg.slice(0, 4).map((image, index) => (
+                  {auction.itemImg?.slice(0, 4).map((image, index) => (
                     <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-                      <Image
-                        src={image || "/placeholder.svg"}
+                      <ImageWithFallback
+                        src={image}
                         alt={`${auction.auctionTitle} - Image ${index + 1}`}
+                        fallbackText={auction.auctionTitle}
                         fill
                         className="object-cover"
                       />
