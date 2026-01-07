@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Product listing functionality
 - Auction bidding system
 - Real-time notifications
+- Payment integration
 
 ### Changed
 
