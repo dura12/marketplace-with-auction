@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auction bidding system
 - Real-time notifications
 - Payment integration
+- Admin dashboard
 
 ### Changed
 
