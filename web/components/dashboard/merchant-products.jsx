@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Button } from "@/components/ui/button";
 import { FilterBar } from "../filterBar";
 import {
@@ -318,9 +318,10 @@ export default function MerchantProducts() {
                 >
                   <TableCell>
                     <div className="flex items-center gap-2 sm:gap-4">
-                      <Image
-                        src={product.images[0] || "/placeholder.svg"}
+                      <ImageWithFallback
+                        src={product.images?.[0]}
                         alt={product.productName}
+                        fallbackText={product.productName}
                         width={40}
                         height={40}
                         className="rounded-lg object-cover"
