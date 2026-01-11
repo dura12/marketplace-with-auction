@@ -111,6 +111,13 @@ export function Footer() {
       }`}
     >
       <Toaster />
+      {process.env.NODE_ENV === "development" && (
+        <div className="container mx-auto px-4 py-2">
+          <div className="rounded-md bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 p-2 text-sm text-yellow-800 dark:text-yellow-200">
+            Development: fixture available at <span className="font-medium">admin/scripts/fixtures/product-fixture.json</span>
+          </div>
+        </div>
+      )}
       {/* Top section with gradient background */}
       <div
         className={`bg-gradient-to-r ${getGradientColors()} text-white py-8 sm:py-12`}

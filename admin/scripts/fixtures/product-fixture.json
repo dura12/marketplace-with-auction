@@ -1,0 +1,20 @@
+{
+  "id": "fixture-prod-001",
+  "title": "Vintage Leather Satchel",
+  "slug": "vintage-leather-satchel",
+  "description": "Handcrafted vintage leather satchel with adjustable strap and brass hardware.",
+  "price": 129.99,
+  "currency": "USD",
+  "images": [
+    "/images/fixtures/satchel-1.jpg",
+    "/images/fixtures/satchel-2.jpg"
+  ],
+  "category": "Bags",
+  "condition": "used",
+  "stock": 12,
+  "seller": {
+    "id": "seller-fixture-1",
+    "name": "Fixture Shop"
+  },
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
