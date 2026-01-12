@@ -1,44 +1,55 @@
 'use client'
    import { io } from "socket.io-client";
 
-   let socket;
+   let socket = null;
    let notificationCallbacks = [];
+   let connectionAttempted = false;
 
-   if (typeof window !== 'undefined') {
+   // Only attempt socket connection if explicitly enabled or in production
+   const SOCKET_ENABLED = process.env.NEXT_PUBLIC_SOCKET_ENABLED === 'true' || 
+                          process.env.NODE_ENV === 'production';
+
+   if (typeof window !== 'undefined' && SOCKET_ENABLED) {
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 
                      (process.env.NODE_ENV === 'production' 
                          ? window.location.origin 
-                         : 'http://localhost:3000');
+                         : 'http://localhost:3001');
 
        socket = io(socketUrl, {
-           path: '/socket.io/',
+           path: '/api/socket',
            transports: ['websocket', 'polling'],
            reconnection: true,
-           reconnectionAttempts: 5,
-           reconnectionDelay: 1000,
-           timeout: 20000,
-           forceNew: true
+           reconnectionAttempts: 3,
+           reconnectionDelay: 2000,
+           timeout: 10000,
+           forceNew: true,
+           autoConnect: true
        });
 
        socket.on('connect_error', (error) => {
-           console.error('Socket connection error:', error);
-           console.log('Attempting to connect to:', socketUrl);
+           if (!connectionAttempted) {
+               console.warn('Socket connection unavailable (this is normal in development)');
+               connectionAttempted = true;
+           }
        });
 
        socket.on('connect', () => {
            console.log('Socket connected successfully to:', socketUrl);
-           const userId = localStorage.getItem('userId'); // Adjust based on your auth system
+           connectionAttempted = false;
+           const userId = localStorage.getItem('userId');
            if (userId) {
                socket.emit('authenticate', userId);
            }
        });
 
        socket.on('disconnect', (reason) => {
-           console.log('Socket disconnected:', reason);
+           if (reason !== 'io client disconnect') {
+               console.log('Socket disconnected:', reason);
+           }
        });
 
        socket.on('error', (error) => {
-           console.error('Socket error:', error);
+           console.warn('Socket error:', error.message);
        });
 
        socket.on('newBid', (data) => {
@@ -97,15 +108,16 @@
    }
 
    export function addNotificationListener(callback) {
-       if (socket) {
-           notificationCallbacks.push(callback);
-       }
+       notificationCallbacks.push(callback);
    }
 
    export function removeNotificationListener(callback) {
-       if (socket) {
-           notificationCallbacks = notificationCallbacks.filter(cb => cb !== callback);
-       }
+       notificationCallbacks = notificationCallbacks.filter(cb => cb !== callback);
+   }
+
+   // Check if socket is connected
+   export function isSocketConnected() {
+       return socket?.connected || false;
    }
 
    export { socket };
