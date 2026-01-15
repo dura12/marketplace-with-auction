@@ -8,7 +8,7 @@ import { getServerSession } from "next-auth";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import { sendEmail } from "./sendEmail";
 import { Agenda } from "agenda";
-import { getIO } from "../socket-server/libs/socket"
+import { getIO } from "./socket"
 import jwt from "jsonwebtoken"
 
 const agenda = new Agenda({ db: { address: process.env.MONGO_URL } });
