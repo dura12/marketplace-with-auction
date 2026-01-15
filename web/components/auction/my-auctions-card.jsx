@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import { useSession } from "next-auth/react"
 import toast from "react-hot-toast"
 import { Badge } from "@/components/ui/badge"
@@ -198,9 +198,10 @@ async function handleCheckout() {
 
       <div className="relative">
         <div className="aspect-[4/3] w-full overflow-hidden">
-          <Image
-            src={auction.imageUrl || "/placeholder.svg"}
+          <ImageWithFallback
+            src={auction.imageUrl}
             alt={auction.title}
+            fallbackText={auction.title}
             width={400}
             height={300}
             className="h-full w-full object-cover transition-transform duration-300"
