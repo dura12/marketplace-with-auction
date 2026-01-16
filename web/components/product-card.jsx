@@ -2,15 +2,15 @@
 
 import { useState } from "react"
 import { ShoppingCart, Eye } from 'lucide-react'
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import { useCart } from "./cart-provider"
 import { useToast } from "./ui/use-toast"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
-export function ProductCard({ product }) {
+export function ProductCard({ product, priority = false }) {
 
   if (!product || !product?._id) {
     console.error("Product missing ID or invalid:", {
@@ -87,13 +87,14 @@ export function ProductCard({ product }) {
         </div>
       )}
       <Link href={`/products/${product._id}`} passHref>
-        <div className="aspect-square overflow-hidden rounded-lg">
-          <Image
+        <div className="relative aspect-square overflow-hidden rounded-lg">
+          <ImageWithFallback
             src={image}
             alt={productName}
-            width={300}
-            height={300}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            fallbackText={productName}
+            fill
+            priority={priority}
+            className="object-cover transition-transform group-hover:scale-105"
           />
         </div>
         <div className="mt-4 space-y-2">
