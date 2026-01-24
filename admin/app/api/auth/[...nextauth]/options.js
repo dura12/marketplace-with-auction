@@ -25,17 +25,52 @@ export const options = {
         const isPasswordValid = await argon2.verify(user.password, credentials.password);
         if (!isPasswordValid) throw new Error('Invalid email or password');
 
-        // Verify the OTP
-        if (!credentials.otp) throw new Error('OTP is required');
-        try {
-          await verifyOtp(credentials.email, credentials.otp);
-        } catch (error) {
-          throw new Error('Invalid OTP');
+        // Verify the OTP (skip in development if OTP not provided)
+        if (credentials.otp) {
+          try {
+            await verifyOtp(credentials.email, credentials.otp);
+          } catch (error) {
+            throw new Error('Invalid OTP');
+          }
+        } else if (process.env.NODE_ENV === 'production') {
+          throw new Error('OTP is required');
         }
 
         // Return user object for session
-        return { id: user._id, email: user.email, role: user.role || null };
+        return { id: user._id.toString(), email: user.email, role: user.role || 'admin', name: user.fullname };
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.role = user.role;
+        token.name = user.name;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.id = token.id;
+        session.user.email = token.email;
+        session.user.role = token.role;
+        session.user.name = token.name;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: '/signin',
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 1 day
+  },
+  jwt: {
+    maxAge: 24 * 60 * 60, // 1 day
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 };

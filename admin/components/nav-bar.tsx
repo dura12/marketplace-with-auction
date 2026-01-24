@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationPopover } from "./notification-popover";
 import { ThemeToggle } from "./ui/theme-toogle";
-import { getUserRole } from "@/utils/adminFunctions";
 
 type NavLink = { name: string; href: string };
 
@@ -25,15 +24,10 @@ export function NavBar() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [role, setRole] = useState<"admin" | "superAdmin" | null>(null);
-
-  useEffect(() => {
-    async function fetchRole() {
-      const r = await getUserRole();
-      setRole(r as "admin" | "superAdmin" | null);
-    }
-    fetchRole();
-  }, []);
+  
+  // Get role from session, normalize superadmin to superAdmin
+  const sessionRole = (session?.user as { role?: string })?.role;
+  const role = sessionRole === "superadmin" || sessionRole === "superAdmin" ? "superAdmin" : sessionRole === "admin" ? "admin" : null;
 
   const navLinks: NavLink[] = [
     { name: "Dashboard", href: "/dashboard" },

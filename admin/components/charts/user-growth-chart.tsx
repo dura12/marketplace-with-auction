@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useId } from "react"
 import { Chart, registerables } from "chart.js"
 
 Chart.register(...registerables)
 
 export function UserGrowthChart({ year }: { year: number }) {
+  const canvasId = useId()
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart | null>(null)
   const [chartData, setChartData] = useState({
@@ -123,7 +124,7 @@ export function UserGrowthChart({ year }: { year: number }) {
 
   return (
     <div className="h-[300px] w-full">
-      <canvas ref={chartRef} />
+      <canvas id={canvasId} ref={chartRef} />
     </div>
   )
 }

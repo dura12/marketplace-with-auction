@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useId } from "react";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
 export function UserDistributionChart() {
+  const canvasId = useId();
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const [userData, setUserData] = useState<
@@ -118,7 +119,7 @@ export function UserDistributionChart() {
 
   return (
     <div className="h-[300px] w-full">
-      <canvas ref={chartRef} />
+      <canvas id={canvasId} ref={chartRef} />
     </div>
   );
 }

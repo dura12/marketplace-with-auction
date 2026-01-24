@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import { getUserRole } from "@/utils/adminFunctions";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,20 +25,13 @@ type NavItem = {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [role, setRole] = useState<"admin" | "superAdmin" | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchRole() {
-      const r = await getUserRole();
-      const normalizedRole = r === "superadmin" ? "superAdmin" : r;
-      setRole(normalizedRole as "admin" | "superAdmin");
-      setLoading(false);
-    }
-    fetchRole();
-  }, []);
-
-  if (loading) return null;
+  const { data: session, status } = useSession();
+  
+  // Get role from session, normalize superadmin to superAdmin
+  const sessionRole = (session?.user as { role?: string })?.role;
+  const role = sessionRole === "superadmin" || sessionRole === "superAdmin" ? "superAdmin" : "admin";
+  
+  if (status === "loading" || status === "unauthenticated") return null;
 
   const navItems: (NavItem | false)[] = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

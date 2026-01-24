@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 interface UserProfile {
   _id?: string;
@@ -14,36 +15,39 @@ interface UseProfileResult {
 }
 
 export function useProfile(): UseProfileResult {
+  const { data: session, status } = useSession();
   const [data, setData] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      setLoading(true);
-      setError(null);
+    // If not authenticated, don't fetch profile
+    if (status === "unauthenticated") {
+      setLoading(false);
+      setData(null);
+      return;
+    }
 
-      try {
-        const response = await fetch('/api/users');
+    // If still loading session, wait
+    if (status === "loading") {
+      return;
+    }
 
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
-        }
+    // If authenticated, use session data directly
+    if (status === "authenticated" && session?.user) {
+      const sessionUser = session.user as { id?: string; email?: string; name?: string; role?: string };
+      setData({
+        _id: sessionUser.id,
+        name: sessionUser.name || undefined,
+        email: sessionUser.email || undefined,
+        role: sessionUser.role,
+      });
+      setLoading(false);
+      return;
+    }
 
-        const text = await response.text();
-        const user = text ? JSON.parse(text) : null;
-
-        setData(user);
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-        setError("Failed to fetch user profile.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+    setLoading(false);
+  }, [session, status]);
 
   return { data, loading, error };
 }

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useId } from "react";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
 export function RevenueDistributionChart() {
+  const canvasId = useId();
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const [revenueData, setRevenueData] = useState<
@@ -135,7 +136,7 @@ export function RevenueDistributionChart() {
 
   return (
     <div className="h-[300px] w-full">
-      <canvas ref={chartRef} />
+      <canvas id={canvasId} ref={chartRef} />
     </div>
   );
 }

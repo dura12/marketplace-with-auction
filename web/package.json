@@ -8,7 +8,8 @@
         "dev": "next dev --turbo -p 3001",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "seed": "node scripts/seed.js"
     },
     "dependencies": {
         "@ai-sdk/google": "^1.1.17",
@@ -50,6 +51,7 @@
         "clsx": "^2.1.1",
         "cors": "^2.8.5",
         "country-state-city": "^3.2.1",
+        "dotenv": "^17.2.3",
         "firebase": "^11.1.0",
         "framer-motion": "^12.4.7",
         "jsonwebtoken": "^9.0.2",

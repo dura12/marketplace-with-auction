@@ -1,12 +1,11 @@
 // components/NotificationPopover.jsx
 "use client";
 
-import { useEffect, useState } from "react";
-import io, { Socket } from "socket.io-client";
+import { useEffect, useState, useRef } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { DefaultEventsMap } from "@socket.io/component-emitter";
+import { useSession } from "next-auth/react";
 
 type Notification = {
   _id: string;
@@ -18,10 +17,11 @@ type Notification = {
   link?: string;
 };
 
-let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
-
 export function NotificationPopover() {
+  const { status } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const socketRef = useRef<ReturnType<typeof import("socket.io-client").io> | null>(null);
+  const socketInitialized = useRef(false);
 
   const fetchNotifications = async () => {
     try {
@@ -31,39 +31,67 @@ export function NotificationPopover() {
       setNotifications(data || []);
     } catch (error) {
       console.error("Error fetching notifications:", error);
+      setNotifications([]);
     }
   };
 
   useEffect(() => {
-    // Initialize Socket.IO client
-    socket = io(process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000", {
-      path: "/api/socket/io",
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to Socket.IO server");
-    });
-
-    socket.on("new-announcement", (newNotif: Notification) => {
-      setNotifications((prev) => [newNotif, ...prev]);
-    });
-
-    socket.on("connect_error", (error) => {
-      console.error("Socket.IO connection error:", error);
-    });
-
+    // Only run when authenticated
+    if (status !== "authenticated") return;
+    
     // Fetch initial notifications
     fetchNotifications();
 
-    // Initialize Socket.IO server
-    fetch("/api/socket").catch((error) =>
-      console.error("Error initializing Socket.IO:", error),
-    );
+    // Initialize Socket.IO client (optional - gracefully handle if unavailable)
+    const initSocket = async () => {
+      if (socketInitialized.current) return;
+      
+      try {
+        const { io } = await import("socket.io-client");
+        const socketUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3001";
+        
+        socketRef.current = io(socketUrl, {
+          path: "/api/socket/io",
+          transports: ["websocket", "polling"],
+          reconnectionAttempts: 3,
+          reconnectionDelay: 5000,
+          timeout: 10000,
+        });
+
+        socketRef.current.on("connect", () => {
+          console.log("Connected to Socket.IO server");
+        });
+
+        socketRef.current.on("new-announcement", (newNotif: Notification) => {
+          setNotifications((prev) => [newNotif, ...prev]);
+        });
+
+        socketRef.current.on("connect_error", () => {
+          // Silently handle connection errors - socket is optional
+          console.log("Socket connection unavailable - notifications will be fetched via polling");
+        });
+
+        socketInitialized.current = true;
+      } catch (error) {
+        // Socket.io is optional, don't crash if unavailable
+        console.log("Socket.io not available, using polling for notifications");
+      }
+    };
+
+    initSocket();
+
+    // Poll for notifications every 30 seconds as fallback
+    const pollInterval = setInterval(fetchNotifications, 30000);
 
     return () => {
-      socket.disconnect();
+      clearInterval(pollInterval);
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        socketInitialized.current = false;
+      }
     };
-  }, []);
+  }, [status]);
 
   const markAsRead = async (id: string) => {
     try {

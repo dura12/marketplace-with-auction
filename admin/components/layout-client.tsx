@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useSidebar } from "@/components/sidebar-provider";
 import { NavBar } from "@/components/nav-bar";
 import { Footer } from "./footer";
@@ -14,7 +16,33 @@ interface LayoutClientProps {
 
 export default function LayoutClient({ children }: LayoutClientProps) {
   const { isOpen } = useSidebar();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const { data: user, loading } = useProfile();
+
+  // Redirect to signin if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/signin");
+    }
+  }, [status, router]);
+
+  // Show loading state while checking authentication
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render content if not authenticated
+  if (status === "unauthenticated") {
+    return null;
+  }
 
   const shouldShowBot = user?.role === "superAdmin";
 

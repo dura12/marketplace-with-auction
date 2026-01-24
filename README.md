@@ -1,382 +1,443 @@
-<div align="center">
+# Gebeya - Ethiopian Online Marketplace with Auction
 
-# 🛒 Marketplace with Auction
+A full-featured e-commerce marketplace platform with real-time auction capabilities, built specifically for the Ethiopian market. Features include product listings, bidding system, order management, and a comprehensive admin panel.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/dura12/marketplace-with-auction/graphs/commit-activity)
+## Features
 
-**A modern, full-featured online marketplace that seamlessly combines traditional e-commerce with competitive auction bidding.**
+### Customer Features
+- Browse and search products by category, location, and price
+- Real-time auction bidding system
+- Shopping cart and wishlist
+- Order tracking and history
+- User reviews and ratings
+- Real-time notifications
+- Multiple payment options via Chapa
 
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Architecture](#-architecture) • [API Reference](#-api-reference) • [Contributing](#-contributing)
+### Merchant Features
+- Product listing and management
+- Auction creation and management
+- Order fulfillment tracking
+- Customer management
+- Sales analytics
+- Bank account integration for payouts
 
-</div>
+### Admin Features
+- User and merchant management
+- Product and auction approval
+- Order monitoring
+- Advertisement management
+- System announcements
+- Analytics dashboard
 
----
+## Tech Stack
 
-## 📋 Overview
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 15, React 18/19, TailwindCSS |
+| **Backend** | Next.js API Routes, Node.js |
+| **Database** | MongoDB with Mongoose |
+| **Authentication** | NextAuth.js with JWT |
+| **Real-time** | Socket.io |
+| **Payments** | Chapa Payment Gateway |
+| **File Storage** | Firebase Storage |
+| **Maps** | Google Maps API |
+| **AI** | Google Gemini (Chatbot) |
 
-**Marketplace with Auction** is a comprehensive e-commerce platform that bridges the gap between fixed-price retail and dynamic auction-based selling. Whether you're a seller looking to maximize value through competitive bidding or a buyer hunting for deals, this platform provides the tools and features needed for a seamless experience.
+## Prerequisites
 
-### Why This Project?
+Before you begin, ensure you have the following installed:
 
-Traditional marketplaces force sellers to choose between fixed prices or auctions. Our platform lets sellers:
-- List items at fixed prices for immediate sales
-- Create time-limited auctions to maximize value
-- Use hybrid listings with "Buy Now" prices alongside auction bidding
-- Reach a wider audience of both bargain hunters and instant buyers
+- **Node.js** v18.0.0 or higher
+- **MongoDB** v6.0 or higher (local or MongoDB Atlas)
+- **npm** or **yarn**
+- **Git**
 
----
+### Installing MongoDB (Windows)
 
-## ✨ Features
+1. Download MongoDB Community Server from [mongodb.com](https://www.mongodb.com/try/download/community)
+2. Run the installer and select "Install MongoDB as a Service"
+3. MongoDB will run automatically on `mongodb://127.0.0.1:27017`
 
-### 🏪 Marketplace Features
-- **Product Listings** — Rich product pages with multiple images, descriptions, and specifications
-- **Category Management** — Hierarchical categories with filtering and search
-- **Shopping Cart** — Persistent cart with guest checkout support
-- **Wishlist** — Save items for later with price drop notifications
-- **Reviews & Ratings** — Verified purchase reviews with seller responses
+Alternatively, use [MongoDB Atlas](https://cloud.mongodb.com) for a free cloud database.
 
-### 🔨 Auction Features
-- **Timed Auctions** — Set start/end times with automatic winner selection
-- **Reserve Prices** — Hidden minimum prices that must be met
-- **Buy Now Option** — Allow instant purchase during active auctions
-- **Bid History** — Complete transparency with full bid logs
-- **Proxy Bidding** — Set maximum bids with automatic incremental bidding
-- **Auction Extensions** — Anti-sniping protection extends auctions on late bids
-- **Watchlist** — Track auctions with outbid notifications
-
-### 👤 User Management
-- **Authentication** — Secure login with email, OAuth (Google, GitHub, Facebook)
-- **User Profiles** — Customizable profiles with avatars and bio
-- **Seller Dashboard** — Analytics, inventory management, and sales reports
-- **Buyer Dashboard** — Order history, active bids, and saved searches
-- **Reputation System** — Trust scores based on transaction history
-
-### 💳 Payments & Security
-- **Multiple Payment Methods** — Credit cards, PayPal, cryptocurrency
-- **Escrow System** — Secure payment holding until delivery confirmation
-- **Fraud Detection** — AI-powered suspicious activity monitoring
-- **PCI Compliance** — Secure payment data handling
-
-### 📱 Additional Features
-- **Real-time Notifications** — WebSocket-powered instant updates
-- **Mobile Responsive** — Optimized for all device sizes
-- **Search & Filters** — Advanced search with multiple filter options
-- **Internationalization** — Multi-language and multi-currency support
-- **Admin Panel** — Complete platform management interface
-
----
-
-## 🛠 Tech Stack
-
-### Backend
-| Technology | Purpose |
-|------------|---------|
-| **Node.js** | Runtime environment |
-| **Express.js** | Web framework |
-| **MongoDB** | Primary database |
-| **Mongoose** | ODM for MongoDB |
-| **Redis** | Caching & session storage |
-| **Socket.io** | Real-time communication |
-| **Bull** | Job queue for background tasks |
-
-### Frontend
-| Technology | Purpose |
-|------------|---------|
-| **React 18** | UI library |
-| **TypeScript** | Type safety |
-| **Redux Toolkit** | State management |
-| **TailwindCSS** | Styling |
-| **React Query** | Server state management |
-| **Framer Motion** | Animations |
-
-### Infrastructure
-| Technology | Purpose |
-|------------|---------|
-| **Docker** | Containerization |
-| **Nginx** | Reverse proxy & load balancing |
-| **AWS S3** | File storage |
-| **Stripe** | Payment processing |
-| **SendGrid** | Email services |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-Ensure you have the following installed:
-- Node.js (v18.0.0 or higher)
-- MongoDB (v6.0 or higher) or MongoDB Atlas account
-- Redis (v6 or higher)
-- Docker & Docker Compose (optional, recommended)
-
-### Quick Start with Docker
-
-```bash
-# Clone the repository
-git clone https://github.com/dura12/marketplace-with-auction.git
-cd marketplace-with-auction
-
-# Copy environment variables
-cp .env.example .env
-
-# Start all services
-docker-compose up -d
-
-# Seed sample data (optional)
-docker-compose exec api npm run seed
-```
-
-The application will be available at `http://localhost:3000`
-
-### Manual Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/dura12/marketplace-with-auction.git
-cd marketplace-with-auction
-
-# Install backend dependencies
-cd server
-npm install
-
-# Install frontend dependencies
-cd ../client
-npm install
-
-# Set up environment variables
-cd ..
-cp .env.example .env
-# Edit .env with your configuration (add MongoDB URI)
-
-# Start development servers
-# Terminal 1 - Backend
-cd server
-npm run dev
-
-# Terminal 2 - Frontend
-cd client
-npm run dev
-```
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Database
-MONGODB_URI=mongodb://localhost:27017/marketplace
-REDIS_URL=redis://localhost:6379
-
-# Authentication
-JWT_SECRET=your-super-secret-key
-JWT_REFRESH_SECRET=your-refresh-secret-key
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
-
-# OAuth Providers
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# Payments
-STRIPE_SECRET_KEY=sk_test_xxxxx
-STRIPE_WEBHOOK_SECRET=whsec_xxxxx
-
-# File Storage
-AWS_ACCESS_KEY_ID=your-access-key
-AWS_SECRET_ACCESS_KEY=your-secret-key
-AWS_S3_BUCKET=your-bucket-name
-
-# Email
-SENDGRID_API_KEY=your-sendgrid-key
-
-# App Configuration
-NODE_ENV=development
-PORT=5000
-CLIENT_URL=http://localhost:3000
-```
-
----
-
-## 🏗 Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Load Balancer                           │
-│                           (Nginx)                               │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        │                     │                     │
-        ▼                     ▼                     ▼
-┌───────────────┐   ┌───────────────┐   ┌───────────────┐
-│   Frontend    │   │   API Server  │   │   WebSocket   │
-│   (React)     │   │   (Express)   │   │   Server      │
-└───────────────┘   └───────┬───────┘   └───────┬───────┘
-                            │                   │
-        ┌───────────────────┼───────────────────┘
-        │                   │
-        ▼                   ▼
-┌───────────────┐   ┌───────────────┐   ┌───────────────┐
-│   MongoDB     │   │    Redis      │   │  Background   │
-│  (Primary DB) │   │   (Cache)     │   │  Jobs (Bull)  │
-└───────────────┘   └───────────────┘   └───────────────┘
-        │
-        ▼
-┌───────────────┐
-│   Storage     │
-│   (AWS S3)    │
-└───────────────┘
-```
-
-### Directory Structure
+## Project Structure
 
 ```
 marketplace-with-auction/
-├── client/                 # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── features/       # Feature-based modules
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── pages/          # Route pages
-│   │   ├── services/       # API service layer
-│   │   ├── store/          # Redux store configuration
-│   │   ├── styles/         # Global styles
-│   │   └── utils/          # Utility functions
-│   └── package.json
+├── web/                    # Main marketplace application (port 3001)
+│   ├── app/               # Next.js app router pages & API routes
+│   ├── components/        # React components
+│   ├── models/           # Mongoose database models
+│   ├── libs/             # Utility functions
+│   ├── scripts/          # Database seeders
+│   └── public/           # Static assets
 │
-├── server/                 # Node.js backend
-│   ├── src/
-│   │   ├── config/         # Configuration files
-│   │   ├── controllers/    # Route controllers
-│   │   ├── middleware/     # Express middleware
-│   │   ├── models/         # Mongoose schemas and models
-│   │   ├── routes/         # API routes
-│   │   ├── services/       # Business logic
-│   │   ├── jobs/           # Background job processors
-│   │   ├── utils/          # Utility functions
-│   │   └── websocket/      # WebSocket handlers
-│   ├── seeds/              # Database seeders
-│   └── package.json
+├── admin/                  # Admin panel application (port 3000)
+│   ├── app/              # Next.js app router pages & API routes
+│   ├── components/       # React components
+│   ├── models/          # Mongoose database models
+│   ├── utils/           # Utility functions
+│   └── scripts/         # Database seeders
 │
-├── docker-compose.yml
-├── .env.example
-├── LICENSE
-└── README.md
+└── context/               # Project documentation
 ```
 
----
+## Installation
 
-## 📚 API Reference
-
-### Authentication
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | User login |
-| POST | `/api/auth/logout` | User logout |
-| POST | `/api/auth/refresh` | Refresh access token |
-| GET | `/api/auth/me` | Get current user |
-
-### Products
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/products` | List all products |
-| GET | `/api/products/:id` | Get product details |
-| POST | `/api/products` | Create new product |
-| PUT | `/api/products/:id` | Update product |
-| DELETE | `/api/products/:id` | Delete product |
-
-### Auctions
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/auctions` | List active auctions |
-| GET | `/api/auctions/:id` | Get auction details |
-| POST | `/api/auctions` | Create new auction |
-| POST | `/api/auctions/:id/bid` | Place a bid |
-| GET | `/api/auctions/:id/bids` | Get bid history |
-
-### Orders
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/orders` | List user orders |
-| GET | `/api/orders/:id` | Get order details |
-| POST | `/api/orders` | Create new order |
-| PUT | `/api/orders/:id/status` | Update order status |
-
-Full API documentation available at `/api/docs` when running the server.
-
----
-
-## 🧪 Testing
+### 1. Clone the Repository
 
 ```bash
-# Run all tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run specific test suite
-npm test -- --grep "Auction"
-
-# Run e2e tests
-npm run test:e2e
+git clone https://github.com/your-username/marketplace-with-auction.git
+cd marketplace-with-auction
 ```
 
----
+### 2. Install Dependencies
 
-## 🤝 Contributing
+```bash
+# Install web (marketplace) dependencies
+cd web
+npm install
 
-We welcome contributions! Please follow these steps:
+# Install admin panel dependencies
+cd ../admin
+npm install
+```
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+### 3. Configure Environment Variables
 
-### Development Guidelines
+Create `.env` files in both `web/` and `admin/` directories:
 
-- Follow the existing code style and conventions
-- Write tests for new features
-- Update documentation as needed
-- Keep commits atomic and well-described
+#### Web Application (`web/.env`)
 
-### Code of Conduct
+```env
+# ===========================================
+# DATABASE
+# ===========================================
+MONGO_URL=mongodb://127.0.0.1:27017/marketplace
 
-Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
+# ===========================================
+# NEXTAUTH CONFIGURATION
+# ===========================================
+NEXTAUTH_SECRET=your-super-secret-key-change-in-production
+NEXTAUTH_URL=http://localhost:3001
 
----
+# ===========================================
+# EMAIL CONFIGURATION (Gmail)
+# ===========================================
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
 
-## 📄 License
+# ===========================================
+# CHAPA PAYMENT GATEWAY
+# ===========================================
+CHAPA_SECRET_KEY=your-chapa-secret-key
+CHAPA_CALLBACK_URL=http://localhost:3001/api/callback
+
+# ===========================================
+# GOOGLE AI (Gemini Chatbot)
+# ===========================================
+GOOGLE_API_KEY=your-google-api-key
+
+# ===========================================
+# SOCKET.IO & APP URLs
+# ===========================================
+NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+NEXT_PUBLIC_FRONTEND_URL=http://localhost:3001
+
+# ===========================================
+# FIREBASE CONFIGURATION
+# ===========================================
+NEXT_PUBLIC_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_PROJECT_ID=your-project-id
+NEXT_PUBLIC_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_MESSAGING_SENDER_ID=your-sender-id
+NEXT_PUBLIC_APP_ID=your-app-id
+NEXT_PUBLIC_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# ===========================================
+# GOOGLE MAPS
+# ===========================================
+NEXT_PUBLIC_MAPS_KEY=your-google-maps-api-key
+
+# ===========================================
+# NODE ENVIRONMENT
+# ===========================================
+NODE_ENV=development
+```
+
+#### Admin Panel (`admin/.env`)
+
+```env
+# ===========================================
+# DATABASE
+# ===========================================
+MONGO_URL=mongodb://127.0.0.1:27017/marketplace
+
+# ===========================================
+# NEXTAUTH CONFIGURATION
+# ===========================================
+NEXTAUTH_SECRET=your-super-secret-key-change-in-production
+NEXTAUTH_URL=http://localhost:3000
+
+# ===========================================
+# EMAIL CONFIGURATION
+# ===========================================
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+AACEPTOR_EMAIL=contact@yourdomain.com
+
+# ===========================================
+# CHAPA PAYMENT GATEWAY
+# ===========================================
+CHAPA_SECRET_KEY=your-chapa-secret-key
+
+# ===========================================
+# FRONTEND URL
+# ===========================================
+NEXT_PUBLIC_FRONTEND_URL=http://localhost:3001
+
+# ===========================================
+# FIREBASE CONFIGURATION
+# ===========================================
+NEXT_PUBLIC_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_PROJECT_ID=your-project-id
+NEXT_PUBLIC_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_MESSAGING_SENDER_ID=your-sender-id
+NEXT_PUBLIC_APP_ID=your-app-id
+NEXT_PUBLIC_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# ===========================================
+# GOOGLE MAPS
+# ===========================================
+NEXT_PUBLIC_MAPS_KEY=your-google-maps-api-key
+
+# ===========================================
+# NODE ENVIRONMENT
+# ===========================================
+NODE_ENV=development
+```
+
+### 4. Seed the Database
+
+Populate the database with sample Ethiopian data:
+
+```bash
+# Seed marketplace data (users, products, categories, auctions)
+cd web
+npm run seed
+
+# Seed admin data (admins, announcements)
+cd ../admin
+npm run seed
+```
+
+### 5. Start the Applications
+
+Open two terminal windows:
+
+**Terminal 1 - Web Application:**
+```bash
+cd web
+npm run dev
+```
+
+**Terminal 2 - Admin Panel:**
+```bash
+cd admin
+npm run dev
+```
+
+## Accessing the Applications
+
+| Application | URL | Description |
+|-------------|-----|-------------|
+| **Marketplace** | http://localhost:3001 | Customer & Merchant portal |
+| **Admin Panel** | http://localhost:3000 | Administration dashboard |
+
+## Test Credentials
+
+After seeding the database, use these credentials to test:
+
+### Marketplace (Web)
+
+| Role | Email | Password |
+|------|-------|----------|
+| Customer | abebe.bikila@email.com | Password123! |
+| Customer | tigist.bekele@email.com | Password123! |
+| Merchant | selam.coffee@email.com | Password123! |
+| Merchant | habesha.fashion@email.com | Password123! |
+
+### Admin Panel
+
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | superadmin@gebeya.com | SuperAdmin123! |
+| Admin | admin@gebeya.com | Admin123! |
+
+## Sample Data Included
+
+The seeders create Ethiopia-focused sample data:
+
+### Categories (12)
+- Ethiopian Coffee, Traditional Clothing, Spices & Herbs
+- Handcrafts, Jewelry, Electronics, Home & Living
+- Fashion, Food & Groceries, Art & Antiques
+- Books & Stationery, Health & Beauty
+
+### Products (13)
+- **Coffee**: Yirgacheffe, Sidamo, Harar varieties
+- **Clothing**: Habesha Kemis, Gabi, Traditional Suits
+- **Electronics**: Samsung, TECNO phones
+- **Crafts**: Mesob, Ethiopian Crosses
+- **Spices**: Berbere, Mitmita, Ethiopian Honey
+
+### Auctions (5)
+- Antique Jebena (coffee pot)
+- Vintage Habesha Kemis
+- Ethiopian Art Collection
+- Silver Cross Set
+- Premium Coffee Lot
+
+### Ethiopian Cities
+Addis Ababa, Dire Dawa, Bahir Dar, Gondar, Hawassa, Mekelle, Adama, Jimma, Dessie, Harar
+
+## API Documentation
+
+### Authentication Endpoints
+```
+POST /api/auth/[...nextauth]  - NextAuth.js authentication
+POST /api/auth/verify-otp     - OTP verification
+POST /api/sendOtp             - Send OTP email
+POST /api/forgotPassword      - Password reset
+```
+
+### Product Endpoints
+```
+GET    /api/products          - List products
+GET    /api/products/[id]     - Get product details
+POST   /api/products          - Create product (merchant)
+PUT    /api/products/[id]     - Update product
+DELETE /api/products/[id]     - Delete product
+```
+
+### Auction Endpoints
+```
+GET    /api/auctions          - List auctions
+GET    /api/auctions/[id]     - Get auction details
+POST   /api/auctions          - Create auction
+POST   /api/bid               - Place bid
+GET    /api/bid/[auctionId]   - Get bid history
+```
+
+### Order Endpoints
+```
+GET    /api/orders            - List orders
+GET    /api/orders/[id]       - Get order details
+POST   /api/order             - Create order
+PUT    /api/orders/[id]       - Update order status
+POST   /api/checkout          - Process payment
+```
+
+## Scripts Reference
+
+### Web Application
+```bash
+npm run dev        # Start development server (port 3001)
+npm run build      # Build for production
+npm run start      # Start production server
+npm run lint       # Run ESLint
+npm run seed       # Seed database with sample data
+```
+
+### Admin Panel
+```bash
+npm run dev        # Start development server (port 3000)
+npm run build      # Build for production
+npm run start      # Start production server
+npm run lint       # Run ESLint
+npm run seed       # Seed admin database
+```
+
+## Environment Variables Reference
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `MONGO_URL` | Yes | MongoDB connection string |
+| `NEXTAUTH_SECRET` | Yes | Secret for JWT signing |
+| `NEXTAUTH_URL` | Yes | Application base URL |
+| `EMAIL_USER` | Yes | SMTP email address |
+| `EMAIL_PASS` | Yes | SMTP email password/app password |
+| `CHAPA_SECRET_KEY` | Yes | Chapa API secret key |
+| `GOOGLE_API_KEY` | No | Google Gemini API key |
+| `NEXT_PUBLIC_MAPS_KEY` | No | Google Maps API key |
+| `NEXT_PUBLIC_API_KEY` | No | Firebase API key |
+
+## Troubleshooting
+
+### MongoDB Connection Issues
+```bash
+# Check if MongoDB is running (Windows)
+net start MongoDB
+
+# Or start MongoDB manually
+mongod --dbpath "C:\data\db"
+```
+
+### Port Already in Use
+```bash
+# Find and kill process on port 3001 (Windows)
+netstat -ano | findstr :3001
+taskkill /PID <PID> /F
+```
+
+### Module Not Found Errors
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### TypeScript Errors
+The `tsconfig.json` includes `typeRoots` configuration to resolve d3 type issues:
+```json
+{
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types"]
+  }
+}
+```
+
+## Docker Support
+
+```bash
+# Start with Docker Compose
+cd web
+docker-compose up -d
+
+# This starts:
+# - Next.js application on port 5173 (mapped to 3000)
+# - MongoDB on port 27017
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## Support
 
-## 🙏 Acknowledgments
-
-- [MongoDB](https://mongodb.com) for the database
-- [Mongoose](https://mongoosejs.com) for elegant MongoDB object modeling
-- [Stripe](https://stripe.com) for payment processing
-- [Socket.io](https://socket.io) for real-time features
-- [TailwindCSS](https://tailwindcss.com) for styling
-- All our amazing contributors!
+For support, email support@gebeya.com or join our Telegram community.
 
 ---
 
-<div align="center">
-
-**Built with ❤️ by the community**
-
-[⬆ Back to Top](#-marketplace-with-auction)
-
-</div>
+**Built with love for Ethiopian entrepreneurs and artisans**

@@ -1,31 +1,35 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AboutSettingsPage from "@/components/setting/about/about-settings-page";
 import { SettingsPageSkeleton } from "@/components/setting/settings-page-skeleton";
 import { Sidebar } from "@/components/sidebar";
-import { getUserRole } from "@/utils/adminFunctions";
 
 export default function Page() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const [role, setRole] = useState<"admin" | "superAdmin" | null>(null);
-  const [loading, setLoading] = useState(true);
+  
+  // Get role from session, normalize superadmin to superAdmin
+  const sessionRole = (session?.user as { role?: string })?.role;
+  const role = sessionRole === "superadmin" || sessionRole === "superAdmin" ? "superAdmin" : "admin";
 
   useEffect(() => {
-    async function checkRole() {
-      const r = await getUserRole();
-      if (r !== "superAdmin") {
-        router.push("/");
-      } else {
-        setRole(r);
-        setLoading(false);
-      }
+    if (status === "unauthenticated") {
+      router.push("/signin");
+    } else if (status === "authenticated" && role !== "superAdmin") {
+      router.push("/");
     }
-    checkRole();
-  }, [router]);
+  }, [status, role, router]);
 
-  if (loading) return null; // Optional: replace with a spinner
+  if (status === "loading") {
+    return <SettingsPageSkeleton />;
+  }
+  
+  if (status === "unauthenticated" || role !== "superAdmin") {
+    return null;
+  }
 
   return (
     <Suspense fallback={<SettingsPageSkeleton />}>

@@ -245,9 +245,9 @@ export default function AboutUsPage() {
           </div>
         ) : aboutData?.values?.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {aboutData.values.map((value: any) => (
+            {aboutData.values.map((value: any, index: number) => (
               <Card
-                key={value.id}
+                key={value._id || value.id || `value-${index}`}
                 className="overflow-hidden transition-all hover:shadow-md"
               >
                 <CardContent className="p-6 flex flex-col items-center text-center">
@@ -350,8 +350,8 @@ export default function AboutUsPage() {
           </div>
         ) : aboutData?.locations?.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {aboutData.locations.map((location: any) => (
-              <Card key={location.id} className="overflow-hidden">
+            {aboutData.locations.map((location: any, index: number) => (
+              <Card key={location._id || location.id || `location-${index}`} className="overflow-hidden">
                 <div className="relative h-48">
                   <Image
                     src={location.image || "/placeholder.svg"}
@@ -396,8 +396,8 @@ export default function AboutUsPage() {
           </div>
         ) : aboutData?.awards?.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {aboutData.awards.map((award: any) => (
-              <Card key={award.id} className="overflow-hidden">
+            {aboutData.awards.map((award: any, index: number) => (
+              <Card key={award._id || award.id || `award-${index}`} className="overflow-hidden">
                 <div className="relative h-48">
                   <Image
                     src={award.image || "/placeholder.svg"}
@@ -413,8 +413,8 @@ export default function AboutUsPage() {
                   </div>
                   <p className="text-muted-foreground">{award.description}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {award.tags?.map((tag: string) => (
-                      <Badge key={tag} variant="secondary">
+                    {award.tags?.map((tag: string, tagIndex: number) => (
+                      <Badge key={`${tag}-${tagIndex}`} variant="secondary">
                         {tag}
                       </Badge>
                     ))}
@@ -466,8 +466,8 @@ export default function AboutUsPage() {
           </div>
         ) : aboutData?.stats?.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {aboutData.stats.map((stat: any) => (
-              <div key={stat.id} className="text-center">
+            {aboutData.stats.map((stat: any, index: number) => (
+              <div key={stat._id || stat.id || `stat-${index}`} className="text-center">
                 <p className="text-3xl sm:text-4xl font-bold text-purple-600 dark:text-purple-400">
                   {stat.value}
                 </p>

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useId } from "react";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
 export function TransactionTypeDistributionChart() {
+  const canvasId = useId();
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
@@ -71,7 +72,7 @@ export function TransactionTypeDistributionChart() {
 
   return (
     <div className="h-[300px] w-full">
-      <canvas ref={chartRef} />
+      <canvas id={canvasId} ref={chartRef} />
     </div>
   );
 }

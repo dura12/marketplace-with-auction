@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useId } from "react"
 import { Chart, registerables } from "chart.js"
 
 Chart.register(...registerables)
 
 export function MonthlyReportsChart() {
+  const canvasId = useId()
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstance = useRef<Chart | null>(null)
 
@@ -95,7 +96,7 @@ export function MonthlyReportsChart() {
 
   return (
     <div className="h-[400px] w-full">
-      <canvas ref={chartRef} />
+      <canvas id={canvasId} ref={chartRef} />
     </div>
   )
 }
