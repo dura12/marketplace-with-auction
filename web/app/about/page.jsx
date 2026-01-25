@@ -23,7 +23,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 // Fetch function to retrieve About Us content
 async function fetchAboutUsContent() {
   const sections = [
-    "hero",
+    "heroes",
     "mission",
     "vision",
     "values",
@@ -422,5 +422,25 @@ export default function AboutUsPage() {
         ) : null}
       </div>
     </div>
+  );
+}
+export default function AboutPage() {
+  return (
+    <section className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-4">
+        About the Adama Marketplace with Auction
+      </h1>
+
+      <p className="mb-4">
+        The Adama Marketplace with Auction is a modern e-commerce platform
+        designed to connect verified local merchants with buyers through
+        secure payments, real-time bidding, and location-based discovery.
+      </p>
+
+      <p>
+        Our goal is to reduce unnecessary travel, improve price transparency,
+        and support trusted digital trade within Adama and surrounding areas.
+      </p>
+    </section>
   );
 }
