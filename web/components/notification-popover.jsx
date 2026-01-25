@@ -41,36 +41,40 @@ export function NotificationPopover() {
       fetchNotifications();
     }
 
-    // Socket event listeners
-    socket.on("newBid", (data) => {
-      const newNotification = {
-        id: Date.now().toString(), // Temporary unique ID
-        title: "New Bid Placed",
-        description: `${data.bidderName} placed a bid of $${data.bidAmount}`,
-        time: "Just now",
-        read: false,
-        type: "bid",
-      };
-      setNotifications((prev) => [newNotification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-    });
+    // Socket event listeners (only if socket is available)
+    if (socket) {
+      socket.on("newBid", (data) => {
+        const newNotification = {
+          id: Date.now().toString(), // Temporary unique ID
+          title: "New Bid Placed",
+          description: `${data.bidderName} placed a bid of $${data.bidAmount}`,
+          time: "Just now",
+          read: false,
+          type: "bid",
+        };
+        setNotifications((prev) => [newNotification, ...prev]);
+        setUnreadCount((prev) => prev + 1);
+      });
 
-    socket.on("outbid", (data) => {
-      const newNotification = {
-        id: Date.now().toString(), // Temporary unique ID
-        title: "You've been outbid",
-        description: `${data.bidderName} outbid you with $${data.bidAmount}`,
-        time: "Just now",
-        read: false,
-        type: "outbid",
-      };
-      setNotifications((prev) => [newNotification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-    });
+      socket.on("outbid", (data) => {
+        const newNotification = {
+          id: Date.now().toString(), // Temporary unique ID
+          title: "You've been outbid",
+          description: `${data.bidderName} outbid you with $${data.bidAmount}`,
+          time: "Just now",
+          read: false,
+          type: "outbid",
+        };
+        setNotifications((prev) => [newNotification, ...prev]);
+        setUnreadCount((prev) => prev + 1);
+      });
+    }
 
     return () => {
-      socket.off("newBid");
-      socket.off("outbid");
+      if (socket) {
+        socket.off("newBid");
+        socket.off("outbid");
+      }
     };
   }, [session]);
 

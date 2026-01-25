@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import { useRouter } from "next/navigation"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -465,9 +465,10 @@ export default function ProductDetailPage({ params: paramsPromise }) {
             <CardContent className="p-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="relative aspect-square overflow-hidden rounded-lg border">
-                  <Image
-                    src={product.images[0] || "/placeholder.svg"}
+                  <ImageWithFallback
+                    src={product.images?.[0]}
                     alt={product.productName}
+                    fallbackText={product.productName}
                     fill
                     className="object-cover"
                     priority
@@ -545,11 +546,12 @@ export default function ProductDetailPage({ params: paramsPromise }) {
               </div>
               {product.images.length > 1 && (
                 <div className="mt-6 grid grid-cols-4 gap-2">
-                  {product.images.slice(0, 4).map((image, index) => (
+                  {product.images?.slice(0, 4).map((image, index) => (
                     <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-                      <Image
-                        src={image || "/placeholder.svg"}
+                      <ImageWithFallback
+                        src={image}
                         alt={`${product.productName} - Image ${index + 1}`}
+                        fallbackText={product.productName}
                         fill
                         className="object-cover"
                       />

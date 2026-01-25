@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -308,9 +308,10 @@ export default function CartPage() {
                     {merchant.products.map((product) => (
                       <div key={product.id} className="flex gap-4">
                         <div className="relative aspect-square h-24 w-24 shrink-0 overflow-hidden rounded-lg border">
-                          <Image
-                            src={product.images?.[0] || "/placeholder-image.jpg"}
+                          <ImageWithFallback
+                            src={product.images?.[0] || product.image}
                             alt={product.name}
+                            fallbackText={product.name}
                             fill
                             className="object-cover"
                           />

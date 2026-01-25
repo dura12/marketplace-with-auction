@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export function ImageGallery({ images }) {
+export function ImageGallery({ images, productName = "Product" }) {
   const [currentImage, setCurrentImage] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -36,9 +36,10 @@ export function ImageGallery({ images }) {
           onMouseMove={handleMouseMove}
           onMouseLeave={() => setIsZoomed(false)}
         >
-          <Image
-            src={images[currentImage] || "/placeholder.svg"}
-            alt={`Product image ${currentImage + 1}`}
+          <ImageWithFallback
+            src={images?.[currentImage]}
+            alt={`${productName} - Image ${currentImage + 1}`}
+            fallbackText={productName}
             fill
             className={`object-cover transition-transform duration-500 ${
               isZoomed ? "scale-150" : "scale-100 hover:scale-110"
@@ -76,7 +77,7 @@ export function ImageGallery({ images }) {
         </Button>
       </div>
       <div className="flex gap-4 overflow-x-auto pb-2">
-        {images.map((image, index) => (
+        {images?.map((image, index) => (
           <button
             key={index}
             className={`relative aspect-square w-20 overflow-hidden rounded-lg border ${
@@ -84,9 +85,10 @@ export function ImageGallery({ images }) {
             }`}
             onClick={() => setCurrentImage(index)}
           >
-            <Image
-              src={image || "/placeholder.svg"}
-              alt={`Product thumbnail ${index + 1}`}
+            <ImageWithFallback
+              src={image}
+              alt={`${productName} - Thumbnail ${index + 1}`}
+              fallbackText={productName}
               fill
               className="object-cover"
             />

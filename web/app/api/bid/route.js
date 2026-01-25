@@ -2,7 +2,7 @@ import Bid from "@/models/Bid";
 import Auction from "@/models/Auction";
 import { connectToDB, userInfo } from "@/libs/functions";
 import { sendEmail } from "@/libs/sendEmail";
-import { getIO } from "../../../socket-server/libs/socket";
+import { getIO } from "@/libs/socket";
 import { createBidNotification } from "@/libs/createNotification";
 
 export async function POST(req) {

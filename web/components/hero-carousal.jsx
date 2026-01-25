@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -54,9 +54,10 @@ export function HeroCarousel() {
           }`}
         >
           <div className="relative h-full">
-            <Image
-              src={slide.image || "/placeholder.svg"}
+            <ImageWithFallback
+              src={slide.image}
               alt={slide.title}
+              fallbackText={slide.title}
               fill
               className="object-cover"
               priority={index === 0}

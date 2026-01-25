@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, use, useRef } from "react";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -78,7 +78,7 @@ export default function AuctionDetailPage({ params }) {
 
   // Listen for real-time bid updates
   useEffect(() => {
-    if (auctionData) {
+    if (auctionData && socket) {
       socket.on("newBidIncrement", (data) => {
         if (data.auctionId === auctionData._id) {
           setAuctionData((prev) => ({
@@ -147,13 +147,15 @@ export default function AuctionDetailPage({ params }) {
       }));
       setBidAmount(bidAmount + auctionData.bidIncrement);
 
-      // Emit socket event
-      socket.emit("newBidIncrement", {
-        auctionId: auctionData._id,
-        bidAmount,
-        bidderName: session.user.name,
-        bidderEmail: session.user.email,
-      });
+      // Emit socket event if available
+      if (socket) {
+        socket.emit("newBidIncrement", {
+          auctionId: auctionData._id,
+          bidAmount,
+          bidderName: session.user.name,
+          bidderEmail: session.user.email,
+        });
+      }
 
       // Close the dialog
       setDialogOpen(false);
@@ -188,20 +190,22 @@ export default function AuctionDetailPage({ params }) {
         {/* Image Gallery */}
         <div className="space-y-4">
           <div className="relative aspect-4/3 overflow-hidden rounded-lg border">
-            <Image
-              src={auctionData.itemImg[0] || "/placeholder.svg"}
+            <ImageWithFallback
+              src={auctionData.itemImg?.[0]}
               alt={auctionData.auctionTitle}
+              fallbackText={auctionData.auctionTitle}
               fill
               className="object-cover"
               priority
             />
           </div>
           <div className="grid grid-cols-3 gap-4">
-            {auctionData.itemImg.slice(1).map((image, index) => (
+            {auctionData.itemImg?.slice(1).map((image, index) => (
               <div key={index} className="relative aspect-4/3 overflow-hidden rounded-lg border">
-                <Image
-                  src={image || "/placeholder.svg"}
+                <ImageWithFallback
+                  src={image}
                   alt={`${auctionData.auctionTitle} - Image ${index + 2}`}
+                  fallbackText={auctionData.auctionTitle}
                   fill
                   className="object-cover"
                 />

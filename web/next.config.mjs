@@ -1,12 +1,26 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "hebbkx1anhila5yf.public.blob.vercel-storage.com", 
-      "firebasestorage.googleapis.com",
-      "example.com",
-      'images.unsplash.com',
-    ], 
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+    ],
+    // Allow local images that might not exist during development
+    unoptimized: process.env.NODE_ENV === 'development',
   },
   webpack: (config) => {
     config.externals.push({
