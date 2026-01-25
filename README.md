@@ -1,6 +1,7 @@
 # Gebeya - Ethiopian Online Marketplace with Auction
 
-A complete online marketplace platform with live auction functionality, designed for the Ethiopian market. It includes product management, real-time bidding, order processing, and a powerful administrative dashboard.
+A full-featured e-commerce marketplace platform with real-time auction capabilities, built specifically for the Ethiopian market. Features include product listings, bidding system, order management, and a comprehensive admin panel.
+
 ## Features
 
 ### Customer Features
@@ -440,3 +441,7 @@ For support, email support@gebeya.com or join our Telegram community.
 ---
 
 **Built with love for Ethiopian entrepreneurs and artisans**
+## 🎥 Project Demo
+
+Watch the full demo here:  
+[Marketplace Auction Demo](https://youtu.be/AnyeiPIkodQ)
