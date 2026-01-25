@@ -8,11 +8,8 @@ export const metadata: Metadata = {
 
 export default function OrdersLayout({ children }: { children: ReactNode }) {
   return (
-    <section
-      role="region"
-      aria-label="Orders layout"
-      className="min-h-screen bg-background"
-    >
+    <section>
+      {/* You can wrap with sidebar/header if needed */}
       {children}
     </section>
   );
